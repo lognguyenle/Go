@@ -16,6 +16,7 @@ def main():
     DISPLAYSURF = pygame.display.set_mode((const.WINDOWWIDTH, const.WINDOWHEIGHT))
     clock = pygame.time.Clock()
     pygame.display.set_caption('Python Go!')
+    DISPLAYSURF.fill(const.BGCOLOR)
 
     current_scene = menu.MenuScene()
 
@@ -29,7 +30,6 @@ def main():
                 quit = True
             elif event.type == pygame.KEYDOWN:
                 quit = (event.key == pygame.K_F4) and (pressed_keys[pygame.K_LALT] or pressed_keys[pygame.K_RALT])
-            
             if quit:
                 current_scene.Terminate()
             else:
