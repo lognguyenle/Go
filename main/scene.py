@@ -15,3 +15,6 @@ class Scene:
     
     def SwitchToScene(self, next_scene):
         self.next = next_scene
+        
+    def Terminate(self):
+        self.SwitchToScene(None)
