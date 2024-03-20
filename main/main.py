@@ -1,9 +1,11 @@
+# Game lifecycle inspired from https://nerdparadise.com/programming/pygame/part7
+
 import pygame
 import sys
 from ui_elements import UIButton
 from pygame.locals import *
 import constants as const
-
+import main_menu as menu
 
 class WindowTypes:
     one = "menu"
@@ -12,71 +14,38 @@ class WindowTypes:
 def main():
     pygame.init()
     DISPLAYSURF = pygame.display.set_mode((const.WINDOWWIDTH, const.WINDOWHEIGHT))
-
-    mousex = 0
-    mousey = 0
+    clock = pygame.time.Clock()
     pygame.display.set_caption('Python Go!')
 
-    buttonList = main_menu()
-    current = WindowTypes.one
-    blitList = []
+    current_scene = menu.MenuScene()
 
-    while True: 
-        mouseClicked = False
-        blitList = []
-        for button in buttonList:
-            blitList.append(button.getBlitObj())
-
-        DISPLAYSURF.fill(const.WHITE)
-        DISPLAYSURF.blits(blitList)
+    while current_scene != None: 
+        pressed_keys = pygame.key.get_pressed()
+        
+        filtered_events = []
         for event in pygame.event.get():
+            quit = False
             if event.type == QUIT:
-                pygame.quit()
-                sys.exit()
-            elif event.type == MOUSEMOTION:
-                mousex, mousey = event.pos
-            elif event.type == MOUSEBUTTONUP:
-                mousex, mousey = event.pos
-                mouseClicked = True
-
-        match current:
-            case WindowTypes.one:
-                for button in buttonList:
-                    if button.clicked(mousex, mousey, mouseClicked):
-                        print('CLICKED')
+                quit = True
+            elif event.type == pygame.KEYDOWN:
+                quit = (event.key == pygame.K_F4) and (pressed_keys[pygame.K_LALT] or pressed_keys[pygame.K_RALT])
+            
+            if quit:
+                current_scene.Terminate()
+            else:
+                filtered_events.append(event)
+                
+        current_scene.ProcessInput(filtered_events, pressed_keys)
+        current_scene.Update()
+        current_scene.Render(DISPLAYSURF)
+        
+        current_scene = current_scene.next
 
         pygame.display.update()
-    
-def main_menu(): 
-    objList = []
-    
-    fontObj = pygame.font.SysFont('BELL.TTF', 32)
-    titleFontObj = pygame.font.Font('Ojuju-VariableFont_wght.ttf', 50)
-
-    titleText = UIButton('Go', const.BLACK, const.YELLOW, titleFontObj, (const.WINDOWWIDTH/2, const.WINDOWHEIGHT/3))
-    objList.append(titleText)
-    
-    playButton = UIButton('Play', const.BLACK, const.YELLOW, titleFontObj, (const.WINDOWWIDTH/2, titleText.buttonRectObj.bottom))
-    objList.append(playButton)
-    
-    settingsButton = UIButton('Settings', const.BLACK, const.YELLOW, titleFontObj, (const.WINDOWWIDTH/2, playButton.buttonRectObj.bottom))
-    objList.append(settingsButton)
-    
-    quitButton = UIButton('Quit', const.BLACK, const.YELLOW, titleFontObj, (const.WINDOWWIDTH/2, settingsButton.buttonRectObj.bottom))
-    objList.append(quitButton)
-    
-    return objList
-
-# def main_menu_clicked(current, objList, mousex, mousey, mouseClicked):
-#     for 
+        clock.tick(const.FPS)
         
-# def game_menu():
-#     a
-
-# def game_piece(player_color):
-#     a
-
-
+    pygame.quit()
+    sys.exit()
 
 if __name__ == '__main__':
     main()
