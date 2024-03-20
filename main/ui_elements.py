@@ -1,25 +1,40 @@
-from constants import ANTIALLIASING, WHITE
+from constants import ANTIALLIASING
 
 class UIButton:
-    def __init__(self, text, color, highlightColor, fontObj, pos):
+    def __init__(self, text, color, highlight, highlight_color, bg_color, font_obj, pos):
         self.pos = pos
-        self.fontObj = fontObj
+        self.font_obj = font_obj
         self.text = text
-        self.textColor = color
-        self.highlightColor = highlightColor
-        self.buttonObj = self.fontObj.render(self.text, ANTIALLIASING, self.textColor, WHITE)
-        self.buttonRectObj = self.buttonObj.get_rect()
-        self.buttonRectObj.topleft = (pos[0], pos[1])
+        self.text_color = color
+        self.highlight_effect = highlight
+        self.highlight_color = highlight_color
+        self.bg_color = bg_color
+        self.button_obj = self.font_obj.render(self.text, ANTIALLIASING, self.text_color, self.bg_color)
+        self.button_rect_obj = self.button_obj.get_rect()
+        self.button_rect_obj.topleft = (pos[0], pos[1])
+        self.changed = False
         
-    def getBlitObj(self):
-        return (self.buttonObj, self.buttonRectObj)
+    def get_blit_obj(self):
+        return (self.button_obj, self.button_rect_obj)
         
-    def clicked(self, mousex, mousey, mouseClicked):
-        if self.buttonRectObj.collidepoint((mousex, mousey)):
-            self.buttonObj = self.fontObj.render(self.text, ANTIALLIASING, self.textColor, self.highlightColor)
-            if mouseClicked:
-                return True
-        else: 
-            self.buttonObj = self.fontObj.render(self.text, ANTIALLIASING, self.textColor, WHITE)
+    def clicked(self, mouse_x, mouse_y, mouse_clicked):
+        if self.button_rect_obj.collidepoint((mouse_x, mouse_y)):
+            if self.highlight_effect:
+                    if self.changed == False:
+                        self.button_obj = self.font_obj.render(self.text, ANTIALLIASING, self.text_color, self.highlight_color)
+                        self.changed = True
+            return mouse_clicked
+        else:
+            if self.changed:
+                self.button_obj = self.font_obj.render(self.text, ANTIALLIASING, self.text_color, self.bg_color)
+                self.changed = False
         return False
     
+    def update(self, mouse_x, mouse_y, mouse_clicked):
+        if self.clicked(mouse_x, mouse_y, mouse_clicked):
+            self.do() 
+    
+    def do(self):
+        print("Overwrite this!")
+    
+#class UITextBox:
