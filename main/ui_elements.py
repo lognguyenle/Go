@@ -1,4 +1,5 @@
 from constants import ANTIALLIASING
+import pygame
 
 class UITextBox:
     def __init__(self, text, color, bg_color, font_obj, pos):
@@ -19,10 +20,11 @@ class UITextBox:
         pass
 
 class UIButton(UITextBox):
-    def __init__(self, text, color, highlight, highlight_color, bg_color, font_obj, pos):
+    def __init__(self, text, color, highlight, highlight_color, bg_color, font_obj, pos, event):
         super().__init__(text, color, bg_color, font_obj, pos)
         self.highlight_effect = highlight
         self.highlight_color = highlight_color
+        self.event = event
         
     def clicked(self, mouse_x, mouse_y, mouse_clicked):
         if self.rect.collidepoint((mouse_x, mouse_y)):
@@ -42,4 +44,26 @@ class UIButton(UITextBox):
             self.do()
     
     def do(self):
-        print("Overwrite this!")
+        if self.event != None:
+            pygame.event.post(self.event)
+        pass
+
+# Gameboard class that contains the ui and logic
+class GameBoard:
+    def __init__(self, color, linecolor, pos):
+        pass
+    
+    def update(self):
+        pass
+    
+    def placepiece(x, y):
+        pass
+    
+    def flippiece(x, y):
+        pass
+    
+    def clicked(self, mouse_x, mouse_y, mouse_clicked):
+        pass
+    
+    def get_blit_obj(self):
+        pass
