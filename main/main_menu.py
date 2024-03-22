@@ -2,27 +2,12 @@ import pygame
 import constants as const
 import ui_elements as ui
 import scene
+import game
 from pygame.locals import *
 
 SETTINGSEVENT = pygame.event.custom_type()
-MENUEVENT = pygame.event.custom_type()
-
-class QuitButton(ui.UIButton):
-    def do(self):
-        event = pygame.event.Event(pygame.QUIT, {})
-        pygame.event.post(event)
-        
-class SettingsButton(ui.UIButton):
-    def do(self):
-        event = pygame.event.Event(SETTINGSEVENT, {})
-        pygame.event.post(event)
-        
-class MenuButton(ui.UIButton):
-    def do(self):
-        event = pygame.event.Event(MENUEVENT, {})
-        pygame.event.post(event)
-        
-
+MENUEVENT     = pygame.event.custom_type()
+PLAYEVENT     = pygame.event.custom_type()
 
 def main_menu(): 
     obj_list = []
@@ -32,13 +17,13 @@ def main_menu():
     title_text = ui.UITextBox('Go', const.BLACK, const.WHITE, title_font_obj, (const.WINDOWWIDTH/2, const.WINDOWHEIGHT/3))
     obj_list.append(title_text)
     
-    play_button = ui.UIButton('Play', const.BLACK, True, const.YELLOW, const.WHITE, font_obj, (const.WINDOWWIDTH/2, title_text.rect.bottom))
+    play_button = ui.UIButton('Play', const.BLACK, True, const.YELLOW, const.WHITE, font_obj, (const.WINDOWWIDTH/2, title_text.rect.bottom), event = pygame.event.Event(PLAYEVENT, {}))
     obj_list.append(play_button)
     
-    settings_button = SettingsButton('Settings', const.BLACK, True, const.YELLOW, const.WHITE, font_obj, (const.WINDOWWIDTH/2, play_button.rect.bottom))
+    settings_button = ui.UIButton('Settings', const.BLACK, True, const.YELLOW, const.WHITE, font_obj, (const.WINDOWWIDTH/2, play_button.rect.bottom), event = pygame.event.Event(SETTINGSEVENT, {}))
     obj_list.append(settings_button)
     
-    quit_button = QuitButton('Quit', const.BLACK, True, const.YELLOW, const.WHITE, font_obj, (const.WINDOWWIDTH/2, settings_button.rect.bottom))
+    quit_button = ui.UIButton('Quit', const.BLACK, True, const.YELLOW, const.WHITE, font_obj, (const.WINDOWWIDTH/2, settings_button.rect.bottom), event = pygame.event.Event(pygame.QUIT, {}))
     obj_list.append(quit_button)
     
     return obj_list
@@ -51,15 +36,15 @@ def settings_menu():
     settings_title_text = ui.UITextBox('Settings', const.BLACK, const.WHITE, title_font_obj, (const.WINDOWWIDTH/2, const.WINDOWHEIGHT/3))
     obj_list.append(settings_title_text)
     
-    settings_button = ui.UIButton('Example Setting', const.BLACK, True, const.YELLOW, const.WHITE, font_obj, (const.WINDOWWIDTH/2, settings_title_text.rect.bottom))
+    settings_button = ui.UIButton('Example Setting', const.BLACK, True, const.YELLOW, const.WHITE, font_obj, (const.WINDOWWIDTH/2, settings_title_text.rect.bottom), None)
     obj_list.append(settings_button)
     
-    back_button = MenuButton('Back', const.BLACK, True, const.YELLOW, const.WHITE, font_obj, (const.WINDOWWIDTH/2, settings_button.rect.bottom))
+    back_button = ui.UIButton('Back', const.BLACK, True, const.YELLOW, const.WHITE, font_obj, (const.WINDOWWIDTH/2, settings_button.rect.bottom), event = pygame.event.Event(MENUEVENT, {}))
     obj_list.append(back_button)
     
     return obj_list
 
-class MenuScene(scene.Scene):
+class MenuScene(scene.BareScene):
     def __init__(self):
         self.next = self
         self.obj_list = main_menu()
@@ -77,20 +62,12 @@ class MenuScene(scene.Scene):
                 mouse_clicked = True
             if event.type == SETTINGSEVENT:
                 self.SwitchToScene(SettingsScene())
+            if event.type == PLAYEVENT:
+                self.SwitchToScene(game.GameScene())
         for obj in self.obj_list:
             obj.update(self.mousepos[0], self.mousepos[1], mouse_clicked)
         
-    def Update(self):
-        self.to_render = []
-        for obj in self.obj_list:
-            self.to_render.append(obj.get_blit_obj())
-        
-    def Render(self, screen):
-        if self.bgupdate:
-            screen.fill(const.BGCOLOR)
-        screen.blits(self.to_render)
-        
-class SettingsScene(MenuScene):
+class SettingsScene(scene.BareScene):
     def __init__(self):
         self.next = self
         self.obj_list = settings_menu()
