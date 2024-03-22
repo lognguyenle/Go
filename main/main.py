@@ -2,14 +2,9 @@
 
 import pygame
 import sys
-from ui_elements import UIButton
 from pygame.locals import *
 import constants as const
 import main_menu as menu
-
-class WindowTypes:
-    one = "menu"
-    two = "game"
 
 def main():
     pygame.init()
