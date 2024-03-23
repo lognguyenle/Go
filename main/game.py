@@ -1,7 +1,5 @@
-import pygame
 import constants as const
 import ui_elements as ui
-import scene
 from pygame.locals import *
 
 def game_objs():
@@ -15,22 +13,11 @@ def game_objs():
 def boardObject():
     pass
 
-class GameScene(scene.BareScene):
-    def __init__(self):
-        self.next = self
-        self.obj_list = game_objs()
-        self.to_render = []
-        self.mousepos = (0, 0)
-        self.bgupdate = True
+class GameTracker:
+    def __init__(self, size):
+        self.current = const.PLAYERS[1]
+        self.board = [[0 for i in range(size)] for j in range(size)]
     
-    def ProcessInput(self, events, pressed_keys):
-        mouse_clicked = False
-        for event in events:
-            if event.type == MOUSEMOTION:
-                self.mousepos = event.pos
-            elif event.type == MOUSEBUTTONUP:
-                self.mousepos = event.pos
-                mouse_clicked = True
-        for obj in self.obj_list:
-            obj.update(self.mousepos[0], self.mousepos[1], mouse_clicked)
+
+
     
