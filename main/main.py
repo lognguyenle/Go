@@ -4,7 +4,7 @@ import pygame
 import sys
 from pygame.locals import *
 import constants as const
-import main_menu as menu
+import scene
 
 def main():
     pygame.init()
@@ -13,7 +13,7 @@ def main():
     pygame.display.set_caption('Python Go!')
     DISPLAYSURF.fill(const.BGCOLOR)
 
-    current_scene = menu.MenuScene()
+    current_scene = scene.MenuScene()
 
     while current_scene != None: 
         pressed_keys = pygame.key.get_pressed()
