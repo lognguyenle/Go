@@ -59,6 +59,8 @@ class Place:
         self.margin = margin
         self.rect = pygame.Rect(0, 0, self.width*2, self.width*2)
         self.rect.center = (self.coordinate[0]+self.margin, self.coordinate[1]+self.margin)
+        self.drawn = False
+        self.placed = False
     
     def set_coordinate(self, coordinate):
         self.coordinate = coordinate
@@ -113,12 +115,19 @@ class GameBoard:
     
     def clicked(self, mouse_x, mouse_y, mouse_clicked):
         if self.rect.collidepoint(mouse_x, mouse_y):
+            self.genboard()
             for i in range(self.lines):
                 for y in range(self.lines):
                     current = self.board[i, y]
                     if current.rect.collidepoint(mouse_x, mouse_y):
+                        gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (0, 0, 0, 50))
+                        gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (0, 0, 0, 50))
+                    if (mouse_clicked is True and current.rect.collidepoint(mouse_x, mouse_y)) or current.placed is True:
                         gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, self.linecolor)
                         gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, self.linecolor)
-
+                        current.placed = True
+                        
+                    
+                        
     def get_blit_obj(self):
         return (self.surface, self.rect)
