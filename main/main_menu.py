@@ -1,8 +1,6 @@
 import pygame
 import constants as const
 import ui_elements as ui
-import scene
-import game
 from pygame.locals import *
 
 SETTINGSEVENT = pygame.event.custom_type()
@@ -44,46 +42,3 @@ def settings_menu():
     
     return obj_list
 
-class MenuScene(scene.BareScene):
-    def __init__(self):
-        self.next = self
-        self.obj_list = main_menu()
-        self.to_render = []
-        self.mousepos = (0, 0)
-        self.bgupdate = True
-    
-    def ProcessInput(self, events, pressed_keys):
-        mouse_clicked = False
-        for event in events:
-            if event.type == MOUSEMOTION:
-                self.mousepos = event.pos
-            elif event.type == MOUSEBUTTONUP:
-                self.mousepos = event.pos
-                mouse_clicked = True
-            if event.type == SETTINGSEVENT:
-                self.SwitchToScene(SettingsScene())
-            if event.type == PLAYEVENT:
-                self.SwitchToScene(game.GameScene())
-        for obj in self.obj_list:
-            obj.update(self.mousepos[0], self.mousepos[1], mouse_clicked)
-        
-class SettingsScene(scene.BareScene):
-    def __init__(self):
-        self.next = self
-        self.obj_list = settings_menu()
-        self.to_render = []
-        self.mousepos = (0, 0)
-        self.bgupdate = True
-        
-    def ProcessInput(self, events, pressed_keys):
-        mouse_clicked = False
-        for event in events:
-            if event.type == MOUSEMOTION:
-                self.mousepos = event.pos
-            elif event.type == MOUSEBUTTONUP:
-                self.mousepos = event.pos
-                mouse_clicked = True
-            if event.type == MENUEVENT:
-                self.SwitchToScene(MenuScene())
-        for obj in self.obj_list:
-            obj.update(self.mousepos[0], self.mousepos[1], mouse_clicked)
