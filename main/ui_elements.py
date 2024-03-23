@@ -3,6 +3,7 @@ import constants as const
 import pygame
 from pygame import gfxdraw
 import numpy
+import game
 
 class UITextBox:
     def __init__(self, text, color, bg_color, font_obj, pos):
@@ -70,6 +71,7 @@ class Place:
 # Gameboard class that contains the ui and logic
 class GameBoard:
     def __init__(self, color, lines, linecolor, pos, width_height):
+        self.board_data = game.GameTracker(lines)
         self.color = color
         self.linecolor = linecolor
         self.lines = lines
@@ -96,9 +98,6 @@ class GameBoard:
     
     def update(self, mouse_x, mouse_y, mouse_clicked):
         self.clicked(mouse_x, mouse_y, mouse_clicked)
-            
-    def placepiece(x, y):
-        pass
     
     def flippiece(x, y):
         pass
@@ -114,17 +113,33 @@ class GameBoard:
             pygame.draw.line(self.surface, self.linecolor, (y, x), (y_end, x), 1)
     
     def clicked(self, mouse_x, mouse_y, mouse_clicked):
-        if self.rect.collidepoint(mouse_x, mouse_y):
+        # if self.rect.collidepoint(mouse_x, mouse_y):
             self.genboard()
             for i in range(self.lines):
                 for y in range(self.lines):
                     current = self.board[i, y]
                     if current.rect.collidepoint(mouse_x, mouse_y):
-                        gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (0, 0, 0, 50))
-                        gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (0, 0, 0, 50))
+                        if self.board_data.current is const.PLAYERS[0]:
+                            gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (255, 255, 255, 75))
+                            gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (255, 255, 255, 75))
+                        else:
+                            gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (0, 0, 0, 75))
+                            gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (0, 0, 0, 75))
+                        
                     if (mouse_clicked is True and current.rect.collidepoint(mouse_x, mouse_y)) or current.placed is True:
-                        gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, self.linecolor)
-                        gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, self.linecolor)
+                        if current.placed is False:
+                            if self.board_data.current is const.PLAYERS[1]:
+                                self.board_data.current = const.PLAYERS[0]
+                                self.board_data.board[i][y] = 1
+                            else:
+                                self.board_data.current = const.PLAYERS[1]
+                                self.board_data.board[i][y] = 2
+                        if self.board_data.board[i][y] == 1:
+                            gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.BLACK)
+                            gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.BLACK)
+                        else:
+                            gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.WHITE)
+                            gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.WHITE)
                         current.placed = True
                         
                     
