@@ -7,8 +7,8 @@ from pygame.locals import *
 def game_objs():
     obj_list = []
     
-    #boardObject
-    
+    game_board = ui.GameBoard(const.BOARDCOLORDEF, 19, const.BLACK, (const.WINDOWHEIGHT/20,const.WINDOWHEIGHT/20), (const.WINDOWHEIGHT*18/20,const.WINDOWHEIGHT*18/20))
+    obj_list.append(game_board)
     
     return obj_list
 
