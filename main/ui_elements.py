@@ -5,6 +5,10 @@ from pygame import gfxdraw
 import numpy
 import game
 
+def circle_draw(surface, x, y, width, color):
+    gfxdraw.aacircle(surface, x, y, width, color)
+    gfxdraw.filled_circle(surface, x, y, width, color)
+
 class UITextBox:
     def __init__(self, text, color, bg_color, font_obj, pos):
         self.pos = pos
@@ -55,11 +59,9 @@ class UIButton(UITextBox):
 class Place:
     def __init__(self, color, coordinate, width, margin):
         self.color = color
-        self.coordinate = coordinate
         self.width = width
         self.margin = margin
-        self.rect = pygame.Rect(0, 0, self.width*2, self.width*2)
-        self.rect.center = (self.coordinate[0]+self.margin, self.coordinate[1]+self.margin)
+        self.set_coordinate(coordinate)
         self.drawn = False
         self.placed = False
     
@@ -77,16 +79,10 @@ class GameBoard:
         self.lines = lines
         self.width_height = width_height
         self.surface = pygame.Surface(width_height)
-        self.surface.fill(color)
         self.margin = round(width_height[0]/(self.lines+5))
         self.inner = round((width_height[0] - 2*self.margin)/(self.lines-1))
-        for i in range(lines):
-            x = self.margin + self.inner*i
-            y = self.margin
-            y_end = width_height[0]-self.margin
-            pygame.draw.line(self.surface, linecolor, (x,y), (x, y_end), 1)
-            pygame.draw.line(self.surface, linecolor, (y, x), (y_end, x), 1)
-        self.board = numpy.ndarray(shape=(self.lines, self.lines), dtype = numpy.object_)
+        self.genboard()
+        self.board = numpy.ndarray(shape = (self.lines, self.lines), dtype = numpy.object_)
         for i in range(lines):
             for y in range(lines):
                 self.board[i, y] = Place(0, (0,0), round(self.inner/2.125), const.WINDOWHEIGHT/20)
@@ -103,7 +99,6 @@ class GameBoard:
         pass
     
     def genboard(self):
-        self.surface = pygame.Surface(self.width_height)
         self.surface.fill(self.color)
         for i in range(self.lines):
             x = self.margin + self.inner*i
@@ -113,36 +108,34 @@ class GameBoard:
             pygame.draw.line(self.surface, self.linecolor, (y, x), (y_end, x), 1)
     
     def clicked(self, mouse_x, mouse_y, mouse_clicked):
-        # if self.rect.collidepoint(mouse_x, mouse_y):
-            self.genboard()
-            for i in range(self.lines):
-                for y in range(self.lines):
-                    current = self.board[i, y]
-                    if current.rect.collidepoint(mouse_x, mouse_y):
-                        if self.board_data.current is const.PLAYERS[0]:
-                            gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (255, 255, 255, 75))
-                            gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (255, 255, 255, 75))
+        self.genboard()
+        for i in range(self.lines):
+            for y in range(self.lines):
+                current = self.board[i, y]
+                if (mouse_clicked is True and current.rect.collidepoint(mouse_x, mouse_y)) or current.placed is True:
+                    if current.placed is False:
+                        if self.board_data.current is const.PLAYERS[1]:
+                            self.board_data.current = const.PLAYERS[0]
+                            self.board_data.board[i][y] = 1
                         else:
-                            gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (0, 0, 0, 75))
-                            gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, (0, 0, 0, 75))
-                        
-                    if (mouse_clicked is True and current.rect.collidepoint(mouse_x, mouse_y)) or current.placed is True:
-                        if current.placed is False:
-                            if self.board_data.current is const.PLAYERS[1]:
-                                self.board_data.current = const.PLAYERS[0]
-                                self.board_data.board[i][y] = 1
-                            else:
-                                self.board_data.current = const.PLAYERS[1]
-                                self.board_data.board[i][y] = 2
-                        if self.board_data.board[i][y] == 1:
-                            gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.BLACK)
-                            gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.BLACK)
-                        else:
-                            gfxdraw.aacircle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.WHITE)
-                            gfxdraw.filled_circle(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.WHITE)
-                        current.placed = True
-                        
-                    
+                            self.board_data.current = const.PLAYERS[1]
+                            self.board_data.board[i][y] = 2
+                    if self.board_data.board[i][y] == 1:
+                        circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.BLACK)
+                    else:
+                        circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.WHITE)
+                    current.placed = True
+                elif current.rect.collidepoint(mouse_x, mouse_y):
+                    if self.board_data.current is const.PLAYERS[0]:
+                        circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.WHITETRANSPARENT)
+                    else:
+                        circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.BLACKTRANSPARENT)
                         
     def get_blit_obj(self):
         return (self.surface, self.rect)
+    
+class EscapeMenu:
+    def __init__(self, width_height):
+        self.width_height = width_height
+        
+    

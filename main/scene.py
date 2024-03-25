@@ -4,6 +4,7 @@ import constants as const
 import main_menu as menu
 import game
 from pygame.locals import *
+import pygame
 
 class Scene:
     def __init__(self):
@@ -84,6 +85,8 @@ class GameScene(BareScene):
     def __init__(self):
         super().__init__()
         self.obj_list = game.game_objs()
+        self.escape_menu = False
+        self.escape_menu_obj = []
     
     def ProcessInput(self, events, pressed_keys):
         mouse_clicked = False
@@ -93,5 +96,12 @@ class GameScene(BareScene):
             elif event.type == MOUSEBUTTONUP:
                 self.mousepos = event.pos
                 mouse_clicked = True
-        for obj in self.obj_list:
-            obj.update(self.mousepos[0], self.mousepos[1], mouse_clicked)
+            if pressed_keys[pygame.K_ESCAPE]:
+                for obj in game.escape_menu():
+                    self.escape_menu_obj.append(obj)
+        if self.escape_menu is False:
+            for obj in self.obj_list:
+                obj.update(self.mousepos[0], self.mousepos[1], mouse_clicked)
+        else:
+            for obj in self.escape_menu_obj:
+                obj.update(self.mousepos[0], self.mousepos[1], mouse_clicked)
