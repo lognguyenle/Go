@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "pythongo"
+version = "0.0.1"
+description = "An adaption of the game Go/Da-Tien to Python"
+authors = ["Long Nguyenle <lognguyenle>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pygame = "^2.5.2"
+numpy = "^1.26.4"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
