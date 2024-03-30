@@ -64,6 +64,7 @@ class Place:
         self.set_coordinate(coordinate)
         self.drawn = False
         self.placed = False
+        self.captured = False
     
     def set_coordinate(self, coordinate):
         self.coordinate = coordinate
@@ -113,7 +114,7 @@ class GameBoard:
             for y in range(self.lines):
                 current = self.board[i, y]
                 if (mouse_clicked is True and current.rect.collidepoint(mouse_x, mouse_y)) or current.placed is True:
-                    if current.placed is False:
+                    if current.placed is False and current.captured is False:
                         if self.board_data.current is const.PLAYERS[1]:
                             self.board_data.current = const.PLAYERS[0]
                             self.board_data.board[i][y] = 1
@@ -125,7 +126,7 @@ class GameBoard:
                     else:
                         circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.WHITE)
                     current.placed = True
-                elif current.rect.collidepoint(mouse_x, mouse_y):
+                elif current.rect.collidepoint(mouse_x, mouse_y) and current.captured is False:
                     if self.board_data.current is const.PLAYERS[0]:
                         circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.WHITETRANSPARENT)
                     else:
