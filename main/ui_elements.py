@@ -113,6 +113,9 @@ class GameBoard:
         for i in range(self.lines):
             for y in range(self.lines):
                 current = self.board[i, y]
+                # Add rule where you cannot place a piece on a spot that was captured last turn
+                if self.board_data.board[i][y] == 0:
+                    current.placed = False
                 if (mouse_clicked is True and current.rect.collidepoint(mouse_x, mouse_y)) or current.placed is True:
                     if current.placed is False and current.captured is False:
                         if self.board_data.current is const.PLAYERS[1]:
@@ -121,9 +124,10 @@ class GameBoard:
                         else:
                             self.board_data.current = const.PLAYERS[1]
                             self.board_data.board[i][y] = 2
+                        self.board_data.update_board((i,y))
                     if self.board_data.board[i][y] == 1:
                         circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.BLACK)
-                    else:
+                    elif self.board_data.board[i][y] == 2:
                         circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.WHITE)
                     current.placed = True
                 elif current.rect.collidepoint(mouse_x, mouse_y) and current.captured is False:
