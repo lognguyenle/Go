@@ -29,6 +29,10 @@ class GameTracker:
         
     # Fix so board updates pieces placed in eyes 
     def update_board(self, pos):
+        for x in range(0, self.size):
+            for y in range(0, self.size):
+                if self.board[x][y] == 4:
+                    self.board[x][y] = 5
         curr_color = self.board[pos[0]][pos[1]]
         find_color = 0
         if curr_color == 1:
@@ -38,7 +42,19 @@ class GameTracker:
         adj_pos_list = self.find_adj(pos, find_color)
         flip_parts_list = self.check_liberties(adj_pos_list, find_color)
         for posdata in flip_parts_list:
-            self.board[posdata[0]][posdata[1]] = 0
+            if self.board[posdata[0]][posdata[1]] != 5:
+                self.board[posdata[0]][posdata[1]] = 4
+                
+        adj_pos_list = [pos]
+        flip_parts_list = self.check_liberties(adj_pos_list, curr_color)
+        for posdata in flip_parts_list:
+            if self.board[posdata[0]][posdata[1]] != 5:
+                self.board[posdata[0]][posdata[1]] = 4
+
+        for x in range(0, self.size):
+            for y in range(0, self.size):
+                if self.board[x][y] == 5:
+                    self.board[x][y] = 0
         
     def find_adj(self, pos, find_color:int):
         ret_list = []
@@ -58,12 +74,13 @@ class GameTracker:
     
     def check_liberties(self, pos_list:list, find_color:int):
         ret_list = []
-        liberties = 0
         for pos in pos_list:
-            liberties = GameTracker.recur_check_liberties(self.board, pos, [], ret_list, find_color, self.size)
-        if liberties == 0:
-            return ret_list
-        return []
+            temp_list = []
+            liberties = GameTracker.recur_check_liberties(self.board, pos, [], temp_list, find_color, self.size)
+            if liberties == 0:
+                for obj in temp_list:
+                    ret_list.append(obj)
+        return ret_list
     
     def recur_check_liberties(board, pos, checked_list:list, ret_list:list, find_color:int, size:int):
         liberties = 0
@@ -73,7 +90,7 @@ class GameTracker:
                 ret_list.append((pos[0]-1, pos[1]))
                 checked_list.append((pos[0]-1, pos[1]))
                 liberties = liberties + GameTracker.recur_check_liberties(board, (pos[0]-1, pos[1]), checked_list, ret_list, find_color, size)
-            elif curr_color == 0: 
+            elif curr_color == 0 or curr_color == 4 or curr_color == 5: 
                 return 1
         if pos[0] < size-1 and not checked_list.__contains__((pos[0]+1,pos[1])):
             curr_color = board[pos[0]+1][pos[1]]
@@ -81,7 +98,7 @@ class GameTracker:
                 ret_list.append((pos[0]+1, pos[1]))
                 checked_list.append((pos[0]+1, pos[1]))
                 liberties = liberties + GameTracker.recur_check_liberties(board, (pos[0]+1, pos[1]), checked_list, ret_list, find_color, size)
-            elif curr_color == 0: 
+            elif curr_color == 0 or curr_color == 4 or curr_color == 5: 
                 return 1
         if pos[1] > 0 and not checked_list.__contains__((pos[0],pos[1]-1)):
             curr_color = board[pos[0]][pos[1]-1]
@@ -89,7 +106,7 @@ class GameTracker:
                 ret_list.append((pos[0], pos[1]-1))
                 checked_list.append((pos[0], pos[1]-1))
                 liberties = liberties + GameTracker.recur_check_liberties(board, (pos[0], pos[1]-1), checked_list, ret_list, find_color, size)
-            elif curr_color == 0: 
+            elif curr_color == 0 or curr_color == 4 or curr_color == 5: 
                 return 1
         if pos[1] < size-1 and not checked_list.__contains__((pos[0],pos[1]+1)):
             curr_color = board[pos[0]][pos[1]+1]
@@ -97,7 +114,7 @@ class GameTracker:
                 ret_list.append((pos[0], pos[1]+1))
                 checked_list.append((pos[0], pos[1]+1))
                 liberties = liberties + GameTracker.recur_check_liberties(board, (pos[0], pos[1]+1), checked_list, ret_list, find_color, size)
-            elif curr_color == 0: 
+            elif curr_color == 0 or curr_color == 4 or curr_color == 5: 
                 return 1
         if liberties == 0:
                 ret_list.append((pos[0], pos[1]))

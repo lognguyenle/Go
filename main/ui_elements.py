@@ -62,9 +62,7 @@ class Place:
         self.width = width
         self.margin = margin
         self.set_coordinate(coordinate)
-        self.drawn = False
         self.placed = False
-        self.captured = False
     
     def set_coordinate(self, coordinate):
         self.coordinate = coordinate
@@ -110,31 +108,31 @@ class GameBoard:
     
     def clicked(self, mouse_x, mouse_y, mouse_clicked):
         self.genboard()
-        for i in range(self.lines):
+        for x in range(self.lines):
             for y in range(self.lines):
-                current = self.board[i, y]
-                # Add rule where you cannot place a piece on a spot that was captured last turn
-                if self.board_data.board[i][y] == 0:
+                current = self.board[x, y]
+                if self.board_data.board[x][y] == 0:
                     current.placed = False
-                if (mouse_clicked is True and current.rect.collidepoint(mouse_x, mouse_y)) or current.placed is True:
-                    if current.placed is False and current.captured is False:
+                # Add rule where you cannot place a piece on a spot that was captured last turn
+                if (mouse_clicked is True and current.rect.collidepoint(mouse_x, mouse_y)) or current.placed is True and self.board_data.board[x][y] != 4:
+                    if current.placed is False:
                         if self.board_data.current is const.PLAYERS[1]:
                             self.board_data.current = const.PLAYERS[0]
-                            self.board_data.board[i][y] = 1
+                            self.board_data.board[x][y] = 1
                         else:
                             self.board_data.current = const.PLAYERS[1]
-                            self.board_data.board[i][y] = 2
-                        self.board_data.update_board((i,y))
-                    if self.board_data.board[i][y] == 1:
-                        circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.BLACK)
-                    elif self.board_data.board[i][y] == 2:
-                        circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.WHITE)
+                            self.board_data.board[x][y] = 2
+                        self.board_data.update_board((x,y))
+                    if self.board_data.board[x][y] == 1:
+                        circle_draw(self.surface, self.board[x, y].coordinate[0], self.board[x, y].coordinate[1], current.width, const.BLACK)
+                    elif self.board_data.board[x][y] == 2:
+                        circle_draw(self.surface, self.board[x, y].coordinate[0], self.board[x, y].coordinate[1], current.width, const.WHITE)
                     current.placed = True
-                elif current.rect.collidepoint(mouse_x, mouse_y) and current.captured is False:
+                elif current.rect.collidepoint(mouse_x, mouse_y) and self.board_data.board[x][y] != 4:
                     if self.board_data.current is const.PLAYERS[0]:
-                        circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.WHITETRANSPARENT)
+                        circle_draw(self.surface, self.board[x, y].coordinate[0], self.board[x, y].coordinate[1], current.width, const.WHITETRANSPARENT)
                     else:
-                        circle_draw(self.surface, self.board[i, y].coordinate[0], self.board[i, y].coordinate[1], current.width, const.BLACKTRANSPARENT)
+                        circle_draw(self.surface, self.board[x, y].coordinate[0], self.board[x, y].coordinate[1], current.width, const.BLACKTRANSPARENT)
                         
     def get_blit_obj(self):
         return (self.surface, self.rect)
