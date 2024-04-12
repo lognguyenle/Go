@@ -3,13 +3,24 @@ import ui_elements as ui
 from pygame.locals import *
 import pygame
 
+CURRENTPLAYER = const.PLAYERS[1]
 ESCAPEMENU = pygame.event.custom_type()
+PASS = pygame.event.custom_type()
+BOARDUPDATE = pygame.event.custom_type()
 
 def game_objs():
     obj_list = []
+    font_obj = pygame.font.Font('Ojuju-VariableFont_wght.ttf', 50)
     
-    game_board = ui.GameBoard(const.BOARDCOLORDEF, 7, const.BLACK, (const.WINDOWHEIGHT/20,const.WINDOWHEIGHT/20), (const.WINDOWHEIGHT*18/20,const.WINDOWHEIGHT*18/20))
+    game_board = ui.GameBoard(const.BOARDCOLORDEF, 7, const.BLACK, (const.WINDOWHEIGHT/20,const.WINDOWHEIGHT/20), (const.WINDOWHEIGHT*18/20,const.WINDOWHEIGHT*18/20), event = pygame.event.Event(BOARDUPDATE, {}))
     obj_list.append(game_board)
+    
+    current_player = ui.UITextBox("Turn:" + game_board.get_current_player(), const.BLACK, const.WHITE, font_obj, (const.WINDOWHEIGHT/20+const.WINDOWHEIGHT*19/20,const.WINDOWHEIGHT/20))    
+    obj_list.append(current_player)
+    
+    pass_button = ui.UIButton("Pass", const.BLACK, True, const.YELLOW, const.WHITE, font_obj, 
+                              (const.WINDOWHEIGHT/20+const.WINDOWHEIGHT*19/20,current_player.rect.bottom), event = pygame.event.Event(PASS, {}))
+    obj_list.append(pass_button)
     
     return obj_list
 
@@ -26,6 +37,22 @@ class GameTracker:
         self.current = const.PLAYERS[1]
         self.board = [[0 for i in range(self.size)] for j in range(self.size)]
         self.corners = [[0, 0], [0, size], [size, 0], [size, size]]
+        self.pass_count = 0
+        self.score = []
+        
+    def pass_turn(self):
+        if self.current == const.PLAYERS[1]:
+            self.current = const.PLAYERS[0]
+            self.pass_count += 1
+        else:
+            self.current = const.PLAYERS[1]
+            self.pass_count += 1
+        if self.pass_count == 2:
+            self.calculate_score()
+            return False
+        
+    def calculate_score(self):
+        pass
         
     # Fix so board updates pieces placed in eyes 
     def update_board(self, pos):

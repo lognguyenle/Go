@@ -1,10 +1,12 @@
 #Referenced from https://nerdparadise.com/programming/pygame/part7
 
+from typing import List
 import constants as const
 import main_menu as menu
 import game
 from pygame.locals import *
 import pygame
+import ui_elements
 
 class Scene:
     def __init__(self):
@@ -68,7 +70,7 @@ class SettingsScene(BareScene):
         super().__init__()
         self.obj_list = menu.settings_menu()
         
-    def ProcessInput(self, events, pressed_keys):
+    def ProcessInput(self, events: List[pygame.event.Event], pressed_keys):
         mouse_clicked = False
         for event in events:
             if event.type == MOUSEMOTION:
@@ -90,12 +92,20 @@ class GameScene(BareScene):
     
     def ProcessInput(self, events, pressed_keys):
         mouse_clicked = False
+        event: pygame.event.Event
+        gameboard:ui_elements.GameBoard = self.obj_list[0]
+        playertext:ui_elements.UITextBox = self.obj_list[1]
         for event in events:
             if event.type == MOUSEMOTION:
                 self.mousepos = event.pos
             elif event.type == MOUSEBUTTONUP:
                 self.mousepos = event.pos
                 mouse_clicked = True
+            if event.type == game.PASS:
+                gameboard.board_data.pass_turn()
+                playertext.updatetext("Turn: " + gameboard.get_current_player())
+            if event.type == game.BOARDUPDATE:
+                playertext.updatetext("Turn: " + gameboard.get_current_player())
             if pressed_keys[pygame.K_ESCAPE]:
                 for obj in game.escape_menu():
                     self.escape_menu_obj.append(obj)
