@@ -12,13 +12,13 @@ def circle_draw(surface, x, y, width, color):
 class UITextBox:
     def __init__(self, text, color, bg_color, font_obj, pos):
         self.pos = pos
-        self.font_obj = font_obj
+        self.font_obj:pygame.font.Font = font_obj
         self.text = text
         self.text_color = color
         self.bg_color = bg_color
-        self.surface = self.font_obj.render(self.text, ANTIALLIASING, self.text_color, self.bg_color)
-        self.rect = self.surface.get_rect()
-        self.rect.topleft = (pos[0], pos[1])
+        self.surface:pygame.Surface = self.font_obj.render(self.text, ANTIALLIASING, self.text_color, self.bg_color)
+        self.rect:pygame.Rect = self.surface.get_rect()
+        self.rect.topleft = (self.pos[0], self.pos[1])
         self.changed = False
         
     def get_blit_obj(self):
@@ -26,6 +26,12 @@ class UITextBox:
     
     def update(self, mouse_x, mouse_y, mouse_clicked):
         pass
+    
+    def updatetext(self, text: str):
+        self.text = text
+        self.surface:pygame.Surface = self.font_obj.render(self.text, ANTIALLIASING, self.text_color, self.bg_color)
+        self.rect:pygame.Rect = self.surface.get_rect()
+        self.rect.topleft = (self.pos[0], self.pos[1])
 
 class UIButton(UITextBox):
     def __init__(self, text, color, highlight, highlight_color, bg_color, font_obj, pos, event):
@@ -71,7 +77,7 @@ class Place:
 
 # Gameboard class that contains the ui and logic
 class GameBoard:
-    def __init__(self, color, lines, linecolor, pos, width_height):
+    def __init__(self, color, lines, linecolor, pos, width_height, event:pygame.event.Event):
         self.board_data = game.GameTracker(lines)
         self.color = color
         self.linecolor = linecolor
@@ -90,12 +96,10 @@ class GameBoard:
         self.rect.topleft = pos
         self.pos = pos
         self.changed = False
+        self.event = event
     
     def update(self, mouse_x, mouse_y, mouse_clicked):
         self.clicked(mouse_x, mouse_y, mouse_clicked)
-    
-    def flippiece(x, y):
-        pass
     
     def genboard(self):
         self.surface.fill(self.color)
@@ -113,15 +117,16 @@ class GameBoard:
                 current = self.board[x, y]
                 if self.board_data.board[x][y] == 0:
                     current.placed = False
-                # Add rule where you cannot place a piece on a spot that was captured last turn
                 if (mouse_clicked is True and current.rect.collidepoint(mouse_x, mouse_y)) or current.placed is True and self.board_data.board[x][y] != 4:
                     if current.placed is False:
                         if self.board_data.current is const.PLAYERS[1]:
                             self.board_data.current = const.PLAYERS[0]
                             self.board_data.board[x][y] = 1
+                            pygame.event.post(self.event)
                         else:
                             self.board_data.current = const.PLAYERS[1]
                             self.board_data.board[x][y] = 2
+                            pygame.event.post(self.event)
                         self.board_data.update_board((x,y))
                     if self.board_data.board[x][y] == 1:
                         circle_draw(self.surface, self.board[x, y].coordinate[0], self.board[x, y].coordinate[1], current.width, const.BLACK)
@@ -136,6 +141,12 @@ class GameBoard:
                         
     def get_blit_obj(self):
         return (self.surface, self.rect)
+    
+    def get_current_player(self):
+        return self.board_data.current
+    
+    def get_score(self):
+        return self.board_data.score
     
 class EscapeMenu:
     def __init__(self, width_height):
