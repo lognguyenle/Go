@@ -138,6 +138,8 @@ class GameBoard:
                         circle_draw(self.surface, self.board[x, y].coordinate[0], self.board[x, y].coordinate[1], current.width, const.WHITETRANSPARENT)
                     else:
                         circle_draw(self.surface, self.board[x, y].coordinate[0], self.board[x, y].coordinate[1], current.width, const.BLACKTRANSPARENT)
+                elif current.rect.collidepoint(mouse_x, mouse_y) and self.board_data.board[x][y] == 4:
+                    circle_draw(self.surface, self.board[x, y].coordinate[0], self.board[x, y].coordinate[1], current.width, const.REDTRANSPARENT)
                         
     def get_blit_obj(self):
         return (self.surface, self.rect)
